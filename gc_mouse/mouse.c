@@ -68,24 +68,25 @@ void Mouse_ParseGamepad(Mouse* this, XINPUT_GAMEPAD gamepad) {
     x = gamepad.sThumbRX;
     y = gamepad.sThumbRY;
 
-    // horizontal
-    if (x < GAMEPAD_ANALOG_DEAD_LOW) {
-        input.mi.mouseData = -WHEEL_DELTA;
-        input.mi.dwFlags |= MOUSEEVENTF_HWHEEL;
-    }
-    else if (x > GAMEPAD_ANALOG_DEAD_HIGH) {
-        input.mi.mouseData = WHEEL_DELTA;
-        input.mi.dwFlags |= MOUSEEVENTF_HWHEEL;
-    }
     // vertical
-    else if (y < GAMEPAD_ANALOG_DEAD_LOW) {
-        input.mi.mouseData = -WHEEL_DELTA;
+    if (y < GAMEPAD_ANALOG_DEAD_LOW) {
+        input.mi.mouseData = -SCROLL_SPEED * y/SHRT_MIN;
         input.mi.dwFlags |= MOUSEEVENTF_WHEEL;
     }
     else if (y > GAMEPAD_ANALOG_DEAD_HIGH) {
-        input.mi.mouseData = WHEEL_DELTA;
+        input.mi.mouseData = SCROLL_SPEED * y / SHRT_MAX;
         input.mi.dwFlags |= MOUSEEVENTF_WHEEL;
     }
+    // horizontal
+    else if (x < GAMEPAD_ANALOG_DEAD_LOW) {
+        input.mi.mouseData = -SCROLL_SPEED * x / SHRT_MIN;
+        input.mi.dwFlags |= MOUSEEVENTF_HWHEEL;
+    }
+    else if (x > GAMEPAD_ANALOG_DEAD_HIGH) {
+        input.mi.mouseData = SCROLL_SPEED * x/SHRT_MAX;
+        input.mi.dwFlags |= MOUSEEVENTF_HWHEEL;
+    }
+    
 
     // check if left or right bumpers are pressed (left & right click)
     bool leftPressed = (gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) > 0;

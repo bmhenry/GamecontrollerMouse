@@ -3,8 +3,9 @@
 #include "controller.h"
 #include "main.h"
 
-#define MAX_PIXEL_TRAVEL 15 // max # of pixels travelled per time interval
-#define SLOW_DIVIDER 3      // how much to slow travel speed in 'slow zone'
+#define MAX_PIXEL_TRAVEL 20         // max # of pixels travelled per time interval
+#define SLOW_DIVIDER 3              // how much to slow travel speed in 'slow zone'
+#define SCROLL_SPEED WHEEL_DELTA/4  // how fast to scroll with right stick
 
 
 typedef struct Mouse {
