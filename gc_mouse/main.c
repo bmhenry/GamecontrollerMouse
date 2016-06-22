@@ -1,9 +1,6 @@
 #include "main.h"
 
 
-#define TIME_INTERVAL 15    // milliseconds between controller check
-
-
 
 int main() {
     
@@ -38,7 +35,7 @@ int main() {
             Mouse_SendInput(&mouse);
 
             // check controller for input every TIME_INTERVAL milliseconds
-            Sleep(TIME_INTERVAL);
+            Sleep(mouse.sleepTime);
         }
     }
 

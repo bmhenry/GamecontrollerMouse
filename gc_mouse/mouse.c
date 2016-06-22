@@ -5,6 +5,7 @@
 void Mouse_Init(Mouse* this) {
     this->leftButton = false;
     this->rightButton = false;
+    this->sleepTime = TIME_INTERVAL;
 }
 
 
@@ -13,13 +14,13 @@ void Mouse_ParseGamepad(Mouse* this, XINPUT_GAMEPAD gamepad) {
     int x, y;
     x = gamepad.sThumbLX;
     y = gamepad.sThumbLY;
+    this->sleepTime = TIME_INTERVAL;
 
     // create INPUT struct to send mouse input
     INPUT input;
-    input.type = 0;
-    input.mi.dx = 0;
-    input.mi.dy = 0;
-    input.mi.dwFlags = 0;
+    ZeroMemory(&input, sizeof(input));
+
+    input.type = 0; // input is a mouse
 
     // Left thumbstick is the mouse control
     // check if it's in the deadzone
@@ -86,7 +87,35 @@ void Mouse_ParseGamepad(Mouse* this, XINPUT_GAMEPAD gamepad) {
         input.mi.mouseData = SCROLL_SPEED * x/SHRT_MAX;
         input.mi.dwFlags |= MOUSEEVENTF_HWHEEL;
     }
-    
+
+    // check DPad buttons
+    bool leftDPadPressed =  (gamepad.wButtons & XINPUT_GAMEPAD_DPAD_LEFT) > 0;
+    bool rightDPadPressed = (gamepad.wButtons & XINPUT_GAMEPAD_DPAD_RIGHT) > 0;
+    bool upDPadPressed =    (gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP) > 0;
+    bool downDPadPressed =  (gamepad.wButtons & XINPUT_GAMEPAD_DPAD_DOWN) > 0;
+
+    // dpad scroll (only 1 unit at a time, mostly for Reddit image scrolling)
+    if (upDPadPressed) {
+        input.mi.mouseData = 1;
+        input.mi.dwFlags = MOUSEEVENTF_WHEEL;
+        this->sleepTime = LONG_SLEEP_INTERVAL;
+    }
+    else if (downDPadPressed) {
+        input.mi.mouseData = -1;
+        input.mi.dwFlags = MOUSEEVENTF_WHEEL;
+        this->sleepTime = LONG_SLEEP_INTERVAL;
+    }
+
+    if (leftDPadPressed) {
+        input.mi.mouseData = -1;
+        input.mi.dwFlags = MOUSEEVENTF_HWHEEL;
+        this->sleepTime = LONG_SLEEP_INTERVAL;
+    }
+    else if (rightDPadPressed) {
+        input.mi.mouseData = 1;
+        input.mi.dwFlags = MOUSEEVENTF_HWHEEL;
+        this->sleepTime = LONG_SLEEP_INTERVAL;
+    }
 
     // check if left or right bumpers are pressed (left & right click)
     bool leftPressed = (gamepad.wButtons & XINPUT_GAMEPAD_LEFT_SHOULDER) > 0;
